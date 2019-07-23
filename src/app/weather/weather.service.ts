@@ -1,46 +1,55 @@
-import { HttpClient } from '@angular/common/http';
-import { ICurrentWeather } from '../interfaces';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
-import { map } from 'rxjs/operators';
+import { HttpClient } from "@angular/common/http";
+import { ICurrentWeather } from "../interfaces";
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
+import { environment } from "../../environments/environment";
+import { map } from "rxjs/operators";
 
 interface ICurrentWeatherData {
   weather: [
     {
-      description: string
-      icon: string
+      description: string;
+      icon: string;
     }
   ];
 
   main: {
-    temp: number
+    temp: number;
   };
   sys: {
-    country: string
+    country: string;
   };
   dt: number;
   name: string;
 }
 
+export interface IWeatherService {
+  geyCurrentWeather(city: string, country: string): Observable<ICurrentWeather>;
+}
+
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root"
 })
-export class WeatherService {
+export class WeatherService implements IWeatherService {
   constructor(private httpClient: HttpClient) {}
 
-  private transformToICurrentWeather(data: ICurrentWeatherData): ICurrentWeather {
+  private transformToICurrentWeather(
+    data: ICurrentWeatherData
+  ): ICurrentWeather {
     return {
       city: data.name,
       country: data.sys.country,
       date: new Date(data.dt * 1000),
       image: `http://openweathermap.org/img/w/${data.weather[0].icon}.png`,
       tempurature: this.convertKelvinToFahrenheit(data.main.temp),
-      descrption: data.weather[0].description,
+      descrption: data.weather[0].description
     };
   }
 
-  geyCurrentWeather(city: string, country: string): Observable<ICurrentWeather> {
+  geyCurrentWeather(
+    city: string,
+    country: string
+  ): Observable<ICurrentWeather> {
     return this.httpClient
       .get<ICurrentWeatherData>(
         `${environment.baseURL}api.openweathermap.org/data/2.5/weather?` +
